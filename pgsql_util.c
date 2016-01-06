@@ -3,13 +3,8 @@
 #include "main.h"
 #include "pgsql_util.h"
 
-/**
- * Call check_for_database to determine if a database exists; if it does not, create
- * the database. Then connect to the database.
- * @param name The string provided as the database name
- * @param conn_command The 'dbname = x' format connection command used by PQconnectdb
- * @return Returns the PGconn object upon success; else the program will exit
- */
+void initialize_primary_account_table(PGconn *conn);
+
 PGconn *initialize_database(const char *name, char *conn_command) {
 	bool exists = check_for_database(name);
 
@@ -43,6 +38,10 @@ PGconn *initialize_database(const char *name, char *conn_command) {
 	} else {
 		printf("Successfully connected to database %s\n", name);
 	}
+
+	initialize_primary_account_table(conn);
+
+	printf("Database initialization complete.\n");
 	
 	return(conn);
 }
@@ -85,5 +84,34 @@ bool check_for_database(const char *name) {
 void exit_nicely(PGconn *conn) {
 	PQfinish(conn);
 	exit(EX_UNAVAILABLE);
+}
+
+void initialize_primary_account_table(PGconn *conn) {
+	PGresult *res;
+	char *sql = "CREATE TABLE IF NOT EXISTS estate("
+				"id         int    PRIMARY KEY    NOT NULL,"
+				"name       text                  NOT NULL,"
+				"balance    bigint);";
+
+	/* Start transaction block */
+	res = PQexec(conn, "BEGIN");
+	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+		fprintf(stderr, "BEGIN command failed: %s", PQerrorMessage(conn));
+		PQclear(res);
+		exit_nicely(conn);
+	}
+	PQclear(res);
+
+	res = PQexec(conn, sql);
+	if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+		fprintf(stderr, "CREATE TABLE command failed: %s", PQerrorMessage(conn));
+		PQclear(res);
+		exit_nicely(conn);
+	}
+	PQclear(res);
+
+	/* End the transaction */
+	res = PQexec(conn, "END");
+	PQclear(res);
 }
 
