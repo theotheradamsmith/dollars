@@ -17,6 +17,7 @@ PGconn *initialize_database(const char *name, char *conn_command) {
 		create_db_command = strcat(create_db_command, "createdb ");
 		create_db_command = strcat(create_db_command, name);
 
+		///@todo replace system call with execve() to prevent exploits
 		int system_ret = system(create_db_command);
 		sleep(1);
 		free(create_db_command);
