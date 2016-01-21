@@ -1,5 +1,6 @@
 #include "main.h"
 #include "database.h"
+#include "string_util.h"
 
 char *main_database_err_msg = NULL;
 
@@ -28,7 +29,6 @@ int main(void) {
 		exit(1);
 	}
 
-	// int create_new_chest(sqlite3 *database, char *name, int balance, int family);
 	create_new_chest(db, "test", 0, KITCHEN);
 
 	sqlite3_close(db);
