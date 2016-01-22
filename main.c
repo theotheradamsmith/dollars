@@ -39,6 +39,7 @@ int main(void) {
 	/* Now that we have a database and a vault table, we are ready to proceed... */
 
 	printf("Please enter a balance for your test table: ");
+	//char *response = get_user_response();
 
 	char input[9];
 	fgets(input, sizeof(input), stdin);
