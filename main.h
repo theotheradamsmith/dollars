@@ -8,10 +8,8 @@
 #define ROOT_DB "estate.db"
 
 // Chest Categories, or "Families"
-enum {
-	ROOT,
-	KITCHEN,
-	AUTOMOTIVE,
-	LAUNDRY,
-};
+#define ROOT		0
+#define KITCHEN		1
+#define AUTOMOTIVE	2
+#define LAUNDRY		4
 

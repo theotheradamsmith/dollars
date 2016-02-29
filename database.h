@@ -13,7 +13,7 @@ int initialize_vault(sqlite3 *database);
  * @param family The classification scheme assigned to the account
  * @return Returns 0 upon success
  */
-int create_new_chest(sqlite3 *database, char *name, int balance, int family); 
+int create_new_chest(sqlite3 *database, char *name, int balance, int family);
 
 /**
  * Updates the balance of a chest that is identified by ID
@@ -22,4 +22,4 @@ int create_new_chest(sqlite3 *database, char *name, int balance, int family);
  * @param balance The new dollar amount to assign to the chest (in pennies)
  * @return Returns 0 upon success, -1 if there is an error
  */
-int update_chest_balance(sqlite3 *database, int id, int balance) {
+int update_chest_balance(sqlite3 *database, int id, int balance);

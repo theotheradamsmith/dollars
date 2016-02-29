@@ -20,12 +20,12 @@ int create_new_chest(sqlite3 *database, char *name, int balance, int family) {
 	int rc;
 	char *sql = "INSERT OR IGNORE INTO vault(chest_name, chest_balance, family_id)"
 			    "VALUES (@nam, @bal, @fam);";
-	
+
 	if ((rc = sqlite3_prepare_v2(database, sql, -1, &res, 0)) == SQLITE_OK) {
 		int nam_idx = sqlite3_bind_parameter_index(res, "@nam");
 		int bal_idx = sqlite3_bind_parameter_index(res, "@bal");
 		int fam_idx = sqlite3_bind_parameter_index(res, "@fam");
-		
+
 		sqlite3_bind_text(res, nam_idx, name, -1, SQLITE_STATIC);
 		sqlite3_bind_int(res, bal_idx, balance);
 		sqlite3_bind_int(res, fam_idx, family);
@@ -38,9 +38,9 @@ int create_new_chest(sqlite3 *database, char *name, int balance, int family) {
 		fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(database));
 		return(-1);
 	}
-	
+
 	sqlite3_finalize(res);
-	
+
 	return(0);
 }
 
