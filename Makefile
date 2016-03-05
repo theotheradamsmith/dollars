@@ -8,4 +8,4 @@ $(P): $(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) $(LDLIBS) -o dollars
 
 clean:
-	rm *.o
+	rm dollars *.o
