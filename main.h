@@ -11,5 +11,5 @@
 #define ROOT		0
 #define KITCHEN		1
 #define AUTOMOTIVE	2
-#define LAUNDRY		4
+#define LAUNDRY		3	
 

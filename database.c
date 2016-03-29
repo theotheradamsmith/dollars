@@ -69,3 +69,28 @@ int update_chest_balance(sqlite3 *database, int id, int balance) {
 
 	return(0);
 }
+
+int increment_chest_value(sqlite3 *database, int id, int increment_amount) {
+	sqlite3_stmt *res;
+	int rc;
+	char *sql = "SELECT chest_balance FROM vault WHERE id=@id;";
+
+	if ((rc = sqlite3_prepare_v2(database, sql, -1, &res, 0)) == SQLITE_OK) {
+		int id_idx = sqlite3_bind_parameter_index(res, "@id");
+
+		sqlite3_bind_int(res, id_idx, id);
+	} else {
+		fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(database));
+		return(-1);
+	}
+
+	while (sqlite3_step(res) == SQLITE_ROW) {
+		int bal = sqlite3_column_int(res, 0);
+		bal += increment_amount;
+		update_chest_balance(database, id, bal);
+	}
+
+	sqlite3_finalize(res);
+
+	return(0);
+}

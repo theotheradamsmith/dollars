@@ -1,3 +1,9 @@
+/**
+ * Receives user input and verifies that only whitelisted characters are used,
+ * in this case, characters;
+ * @param input The string received from the user
+ * @return Returns a sanitized string with underscores replacing invalid chars
+ */
 void sanitize_string(char *input);
 
 /**

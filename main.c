@@ -12,7 +12,7 @@ int main(void) {
 	if ((fp = fopen(ROOT_DB, "ab+"))) {
 		fclose(fp);
 	} else {
-		fprintf(stderr, "FATAL ERROR\n");
+		fprintf(stderr, "FATAL ERROR: Unable to open/create ROOT_DB!\n");
 		exit(1);
 	}
 
@@ -21,7 +21,7 @@ int main(void) {
 	int rc;
 
 	if ((rc = sqlite3_open(ROOT_DB, &db)) != SQLITE_OK) {
-		fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+		fprintf(stderr, "FATAL ERROR: Cannot open database: %s\n", sqlite3_errmsg(db));
 		sqlite3_close(db);
 		exit(1);
 	}
@@ -30,7 +30,7 @@ int main(void) {
 	printf("Welcome to your Estate. Initializing...\n");
 
 	if ((rc = initialize_vault(db)) != SQLITE_OK) {
-		fprintf(stderr, "SQL error: %s\n", main_database_err_msg);
+		fprintf(stderr, "FATAL ERROR: SQL error: %s\n", main_database_err_msg);
 		sqlite3_free(main_database_err_msg);
 		sqlite3_close(db);
 		exit(1);
@@ -47,13 +47,14 @@ int main(void) {
 	int sanitize_success = sanitize_number(input);
 
 	if (sanitize_success == -1) {
-		printf("Invalid entry\n");
+		printf("FATAL ERROR: Invalid entry\n");
 		exit(1);
 	}
 
 	int input_number = atoll(input);
 
 	create_new_chest(db, "test", input_number, KITCHEN);
+	increment_chest_value(db, 2, 500);
 
 	/* Close the database */
 	sqlite3_close(db);
