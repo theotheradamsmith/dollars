@@ -33,3 +33,5 @@ int update_chest_balance(sqlite3 *database, int id, int balance);
  * @return 0 on success, -1 if there is an error
  */
 int increment_chest_value(sqlite3 *database, int id, int increment_amount);
+
+int read_chest_balance(sqlite3 *database, int id);
