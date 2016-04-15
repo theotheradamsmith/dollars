@@ -1,3 +1,6 @@
+#ifndef STRING_UTIL_H
+#define STRING_UTIL_H
+
 /**
  * Receives user input and verifies that only whitelisted characters are used,
  * in this case, characters;
@@ -13,3 +16,5 @@ void sanitize_string(char *input);
  * @return Returns -1 if an invalid character is used, 0 upon success
  */
 int sanitize_number(char *input);
+
+#endif /* STRING_UTIL_H */

@@ -1,6 +1,6 @@
 P=dollars
-OBJECTS=sqlite3.o database.o string_util.o main.o
-CFLAGS=-g -Wall -O0 -std=c11
+OBJECTS=sqlite3.o database.o string_util.o main.o test.o
+CFLAGS=-g -Wall -O0
 LDLIBS=-pthread -ldl
 CC=gcc
 

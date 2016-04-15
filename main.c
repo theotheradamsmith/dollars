@@ -1,6 +1,7 @@
 #include "main.h"
 #include "database.h"
 #include "string_util.h"
+#include "test.h"
 
 char *main_database_err_msg = NULL;
 
@@ -39,25 +40,19 @@ int main(void) {
 	/* Now that we have a database and a vault table, we are ready to proceed... */
 
 	printf("Please enter a balance for your test table: ");
-	//char *response = get_user_response();
+	int test_number = get_number();
+	
+	printf("Please enter a title for your test table: ");
+	char *test_title = get_string();
 
-	char input[9];
-	fgets(input, sizeof(input), stdin);
-	input[strlen(input)-1] = '\0';
-	int sanitize_success = sanitize_number(input);
-
-	if (sanitize_success == -1) {
-		printf("FATAL ERROR: Invalid entry\n");
-		exit(1);
-	}
-
-	int input_number = atoll(input);
-
-	create_new_chest(db, "test", input_number, KITCHEN);
+	create_new_chest(db, test_title, test_number, KITCHEN);
 	increment_chest_value(db, 2, 500);
+	read_chest_balance(db, 2);
 
 	/* Close the database */
 	sqlite3_close(db);
+
+	free(test_title);
 
 	return(0);
 }
