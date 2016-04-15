@@ -25,8 +25,9 @@ int create_new_chest(sqlite3 *database, char *name, int balance, int family);
 int update_chest_balance(sqlite3 *database, int id, int balance);
 
 /**
- * Increment a table by a user-specified value. Retrieve the current balance of a chest,
- * add the increment amount, and call update_chest_balance with the new balance value.
+ * Increments a table by a user-specified value. Retrieve the current balance of
+ * a chest, add the increment amount, and call update_chest_balance with the new
+ * balance value.
  * @param database The database the program has connected to
  * @param id The integer ID of the chest
  * @param increment_amount The dollar amount by which to increment the balance
@@ -34,4 +35,19 @@ int update_chest_balance(sqlite3 *database, int id, int balance);
  */
 int increment_chest_value(sqlite3 *database, int id, int increment_amount);
 
+/**
+ * Reports the current balance of a specified chest
+ * @param database The database the program has connected to
+ * @param id The integer ID of the chest
+ * @return Returns the chest balance as an integer, exits on error
+ */
 int read_chest_balance(sqlite3 *database, int id);
+
+/**
+ * Returns the corresponding integer id for a user-named chest
+ * @param database The database the program has connected to
+ * @param name The user-specified name of the chest
+ * @return Returns the integer id of a specified chest, -1 on error
+ */
+int get_chest_id(sqlite3 *database, char *name);
+

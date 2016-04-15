@@ -41,13 +41,21 @@ int main(void) {
 
 	printf("Please enter a balance for your test table: ");
 	int test_number = get_number();
-	
 	printf("Please enter a title for your test table: ");
 	char *test_title = get_string();
-
 	create_new_chest(db, test_title, test_number, KITCHEN);
-	increment_chest_value(db, 2, 500);
-	read_chest_balance(db, 2);
+	free(test_title);
+
+	printf("Enter name of chest to increment: ");
+	test_title = get_string();
+	printf("Enter increment amount: ");
+	test_number = get_number();
+	int test_chest_id = get_chest_id(db, test_title);
+	printf("Now I'll increment Chest %d...\n", test_chest_id);
+	increment_chest_value(db, test_chest_id, test_number);
+
+	int new_test_balance = read_chest_balance(db, test_chest_id);
+	printf("New balance for %s: %d\n", test_title, new_test_balance);
 
 	/* Close the database */
 	sqlite3_close(db);

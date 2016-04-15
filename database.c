@@ -30,12 +30,12 @@ int create_new_chest(sqlite3 *database, char *name, int balance, int family) {
 		sqlite3_bind_int(res, bal_idx, balance);
 		sqlite3_bind_int(res, fam_idx, family);
 	} else {
-		fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(database));
+		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(database));
 		return(-1);
 	}
 
 	if ((rc = sqlite3_step(res)) != SQLITE_DONE) {
-		fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(database));
+		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(database));
 		return(-1);
 	}
 
@@ -56,12 +56,12 @@ int update_chest_balance(sqlite3 *database, int id, int balance) {
 		sqlite3_bind_int(res, bal_idx, balance);
 		sqlite3_bind_int(res, id_idx, id);
 	} else {
-		fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(database));
+		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(database));
 		return(-1);
 	}
 
 	if ((rc = sqlite3_step(res)) != SQLITE_DONE) {
-		fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(database));
+		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(database));
 		return(-1);
 	}
 
@@ -80,7 +80,7 @@ int increment_chest_value(sqlite3 *database, int id, int increment_amount) {
 
 		sqlite3_bind_int(res, id_idx, id);
 	} else {
-		fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(database));
+		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(database));
 		return(-1);
 	}
 
@@ -97,30 +97,57 @@ int increment_chest_value(sqlite3 *database, int id, int increment_amount) {
 
 int read_chest_balance(sqlite3 *database, int id) {
 	sqlite3_stmt *res;
-	int rc;
-	int row = 0;
+	int rc, chest_balance;
+	const char *string_chest_balance;
 	char *sql = "SELECT chest_balance FROM vault WHERE id=@id;";
 
 	if ((rc = sqlite3_prepare_v2(database, sql, -1, &res, 0)) == SQLITE_OK) {
 		int id_idx = sqlite3_bind_parameter_index(res, "@id");
 		sqlite3_bind_int(res, id_idx, id);
 	} else {
-		fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(database));
+		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(database));
+		exit(1);
+	}
+
+	while (1) {
+		int s = sqlite3_step(res);
+		if (s == SQLITE_ROW) {
+			string_chest_balance = (const char *)sqlite3_column_text(res, 0);
+			chest_balance = atoll(string_chest_balance);
+		} else if (s == SQLITE_DONE) {
+			break;
+		} else {
+			fprintf(stderr, "Failed to read row.\n");
+			exit(1);
+		}
+	}
+
+	sqlite3_finalize(res);
+
+	return(chest_balance);
+}
+
+int get_chest_id(sqlite3 *database, char *name) {
+	sqlite3_stmt *res;
+	int rc, id;
+	const char *string_id;
+	char *sql = "SELECT id FROM vault WHERE chest_name=@chest_name;";
+
+	if ((rc = sqlite3_prepare_v2(database, sql, -1, &res, 0)) == SQLITE_OK) {
+		int nam_idx = sqlite3_bind_parameter_index(res, "@chest_name");
+
+		sqlite3_bind_text(res, nam_idx, name, -1, SQLITE_STATIC);
+	} else {
+		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(database));
 		return(-1);
 	}
 
 	while (1) {
 		int s = sqlite3_step(res);
 		if (s == SQLITE_ROW) {
-			int bytes;
-			const unsigned char *text;
-			bytes = sqlite3_column_bytes(res, 0);
-			text = sqlite3_column_text(res, 0);
-			printf("%d: %s\n", row, text);
-			row++;
-		}
-
-		else if (s == SQLITE_DONE) {
+			string_id = (const char *)sqlite3_column_text(res, 0);
+			id = atoll(string_id);
+		} else if (s == SQLITE_DONE) {
 			break;
 		} else {
 			fprintf(stderr, "Failed to read row.\n");
@@ -128,7 +155,8 @@ int read_chest_balance(sqlite3 *database, int id) {
 		}
 	}
 
-	return(0);
-}
+	sqlite3_finalize(res);
 
+	return(id);
+}
 
