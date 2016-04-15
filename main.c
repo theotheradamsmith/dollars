@@ -6,6 +6,9 @@
 char *main_database_err_msg = NULL;
 
 int main(void) {
+	char *test_title;
+	int test_number;
+	int test_chest_id;
 
 	/* Check to see if the ROOT_DB file exists; if not, create it. Exit on fatal error. */
 	FILE *fp;
@@ -39,28 +42,54 @@ int main(void) {
 
 	/* Now that we have a database and a vault table, we are ready to proceed... */
 
-	printf("Please enter a balance for your test table: ");
-	int test_number = get_number();
-	printf("Please enter a title for your test table: ");
-	char *test_title = get_string();
-	create_new_chest(db, test_title, test_number, KITCHEN);
-	free(test_title);
+	while (1) {
+		printf("\n"\
+			   "Options\n"\
+			   "1) Display Grand Total\n"\
+			   "2) Create a chest\n"\
+			   "3) Display Chest Total\n"\
+			   "4) Increment Chest\n"\
+			   "0 to Quit\n"\
+			   "\n");
+		int selection = get_number();
 
-	printf("Enter name of chest to increment: ");
-	test_title = get_string();
-	printf("Enter increment amount: ");
-	test_number = get_number();
-	int test_chest_id = get_chest_id(db, test_title);
-	printf("Now I'll increment Chest %d...\n", test_chest_id);
-	increment_chest_value(db, test_chest_id, test_number);
+		switch (selection) {
+			case 1 :
+				break;
+			case 2 :
+				printf("Please enter a title for your test table: ");
+				test_title = get_string();
+				printf("Please enter a balance for your test table: ");
+				test_number = get_number();
+				create_new_chest(db, test_title, test_number, KITCHEN);
+				free(test_title);
+				break;
+			case 3 :
+				printf("Enter name of chest to read: ");
+				test_title = get_string();
+				test_chest_id = get_chest_id(db, test_title);
+				int new_test_balance = read_chest_balance(db, test_chest_id);
+				printf("New balance for %s: %d\n", test_title, new_test_balance);
+				free(test_title);
+				break;
+			case 4 :
+				printf("Enter name of chest to increment: ");
+				test_title = get_string();
+				printf("Enter increment amount: ");
+				test_number = get_number();
+				test_chest_id = get_chest_id(db, test_title);
+				printf("Now I'll increment Chest %d...\n", test_chest_id);
+				increment_chest_value(db, test_chest_id, test_number);
+				free(test_title);
+				break;
+			default :
+				goto terminate;
+		}
+	}
 
-	int new_test_balance = read_chest_balance(db, test_chest_id);
-	printf("New balance for %s: %d\n", test_title, new_test_balance);
-
+terminate:
 	/* Close the database */
 	sqlite3_close(db);
-
-	free(test_title);
 
 	return(0);
 }
