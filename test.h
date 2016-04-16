@@ -13,4 +13,6 @@ int get_number(void);
  */
 char *get_string(void);
 
+int test_interface_loop(sqlite3 *db);
+
 #endif /* TEST_H */
