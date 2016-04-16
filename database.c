@@ -10,6 +10,7 @@ int initialize_vault(sqlite3 *database) {
 												 "family_id INTEGER,"
 												 "UNIQUE(chest_name));"
 				"INSERT OR IGNORE INTO vault VALUES (1, 'root_account', 0, 0);"
+				"INSERT OR IGNORE INTO vault VALUES (2, 'uncategorized', 0, 0);"
 				"COMMIT;";
 	int rc = sqlite3_exec(database, sql, 0, 0, &main_database_err_msg);
 	return(rc);
@@ -160,3 +161,32 @@ int get_chest_id(sqlite3 *database, char *name) {
 	return(id);
 }
 
+int calculate_grand_total(sqlite3 *database) {
+	sqlite3_stmt *res;
+	int rc;
+	int grand_total = 0;
+	char *sql = "SELECT chest_balance FROM vault where id != 1;";
+
+	if ((rc = sqlite3_prepare_v2(database, sql, -1, &res, 0)) != SQLITE_OK) {
+		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(database));
+		return(-1);
+	}
+
+	while (1) {
+		int s = sqlite3_step(res);
+		if (s == SQLITE_ROW) {
+			int row_balance = sqlite3_column_int(res, 0);
+			printf("Row balance: %d\n", row_balance);
+			grand_total += row_balance;
+		} else if (s == SQLITE_DONE) {
+			break;
+		} else {
+			fprintf(stderr, "Failed to read row.\n");
+			exit(1);
+		}
+	}
+
+	printf("Grand total: %d\n", grand_total);
+
+	return(grand_total);
+}

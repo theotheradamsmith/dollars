@@ -51,3 +51,5 @@ int read_chest_balance(sqlite3 *database, int id);
  */
 int get_chest_id(sqlite3 *database, char *name);
 
+int calculate_grand_total(sqlite3 *database);
+

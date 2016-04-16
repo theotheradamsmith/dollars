@@ -7,7 +7,7 @@ char *main_database_err_msg = NULL;
 
 int main(void) {
 	char *test_title;
-	int test_number;
+	int test_number, grand_total;
 	int test_chest_id;
 
 	/* Check to see if the ROOT_DB file exists; if not, create it. Exit on fatal error. */
@@ -49,12 +49,17 @@ int main(void) {
 			   "2) Create a chest\n"\
 			   "3) Display Chest Total\n"\
 			   "4) Increment Chest\n"\
+			   "10) Set Grand Total\n"\
+			   "11) Increment Grand Total\n"\
 			   "0 to Quit\n"\
 			   "\n");
 		int selection = get_number();
 
 		switch (selection) {
 			case 1 :
+				grand_total = calculate_grand_total(db);
+				printf("Grand total: %d", grand_total);
+				putchar('\n');
 				break;
 			case 2 :
 				printf("Please enter a title for your test table: ");
@@ -62,6 +67,7 @@ int main(void) {
 				printf("Please enter a balance for your test table: ");
 				test_number = get_number();
 				create_new_chest(db, test_title, test_number, KITCHEN);
+				putchar('\n');
 				free(test_title);
 				break;
 			case 3 :
@@ -69,7 +75,8 @@ int main(void) {
 				test_title = get_string();
 				test_chest_id = get_chest_id(db, test_title);
 				int new_test_balance = read_chest_balance(db, test_chest_id);
-				printf("New balance for %s: %d\n", test_title, new_test_balance);
+				printf("New balance for %s: %d", test_title, new_test_balance);
+				putchar('\n');
 				free(test_title);
 				break;
 			case 4 :
@@ -78,9 +85,22 @@ int main(void) {
 				printf("Enter increment amount: ");
 				test_number = get_number();
 				test_chest_id = get_chest_id(db, test_title);
-				printf("Now I'll increment Chest %d...\n", test_chest_id);
+				printf("Now I'll increment Chest %d...", test_chest_id);
 				increment_chest_value(db, test_chest_id, test_number);
+				putchar('\n');
 				free(test_title);
+				break;
+			case 10 :
+				printf("Enter a new balance for your Root Account: ");
+				test_number = get_number();
+				update_chest_balance(db, 1, test_number);
+				putchar('\n');
+				break;
+			case 11 :
+				printf("Enter increment amount: ");
+				test_number = get_number();
+				increment_chest_value(db, 1, test_number);
+				putchar('\n');
 				break;
 			default :
 				goto terminate;
