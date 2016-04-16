@@ -1,3 +1,8 @@
+#ifndef DATABASE_H
+#define DATABASE_H
+
+#include "sqlite3.h"
+
 /**
  * Establishes the root account upon initial use.
  * @param database The database the program has connected to
@@ -53,3 +58,7 @@ int get_chest_id(sqlite3 *database, char *name);
 
 int calculate_grand_total(sqlite3 *database);
 
+int initialize_uncategorized(sqlite3 *database, int balance);
+
+int decrement_uncategorized_balance(sqlite3 *database, int decrement_amount);
+#endif /* DATABASE_H */

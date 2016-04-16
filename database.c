@@ -1,3 +1,4 @@
+#include "database.h"
 #include "main.h"
 
 extern char *main_database_err_msg;
@@ -14,6 +15,29 @@ int initialize_vault(sqlite3 *database) {
 				"COMMIT;";
 	int rc = sqlite3_exec(database, sql, 0, 0, &main_database_err_msg);
 	return(rc);
+}
+
+int initialize_uncategorized(sqlite3 *database, int balance) {
+	sqlite3_stmt *res;
+	int rc;
+	char *sql = "UPDATE vault SET chest_balance=@bal WHERE id=2;";
+
+	if ((rc = sqlite3_prepare_v2(database, sql, -1, &res, 0)) == SQLITE_OK) {
+		int bal_idx = sqlite3_bind_parameter_index(res, "@bal");
+		sqlite3_bind_int(res, bal_idx, balance);
+	} else {
+		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(database));
+		return(-1);
+	}
+
+	if ((rc = sqlite3_step(res)) != SQLITE_DONE) {
+		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(database));
+		return(-1);
+	}
+
+	sqlite3_finalize(res);
+
+	return(0);
 }
 
 int create_new_chest(sqlite3 *database, char *name, int balance, int family) {
@@ -41,6 +65,8 @@ int create_new_chest(sqlite3 *database, char *name, int balance, int family) {
 	}
 
 	sqlite3_finalize(res);
+
+	decrement_uncategorized_balance(database, balance);
 
 	return(0);
 }
@@ -74,9 +100,10 @@ int update_chest_balance(sqlite3 *database, int id, int balance) {
 int increment_chest_value(sqlite3 *database, int id, int increment_amount) {
 	sqlite3_stmt *res;
 	int rc;
-	char *sql = "SELECT chest_balance FROM vault WHERE id=@id;";
+	int decrement_amount = increment_amount;
+	char *sql_chest = "SELECT chest_balance FROM vault WHERE id=@id;";
 
-	if ((rc = sqlite3_prepare_v2(database, sql, -1, &res, 0)) == SQLITE_OK) {
+	if ((rc = sqlite3_prepare_v2(database, sql_chest, -1, &res, 0)) == SQLITE_OK) {
 		int id_idx = sqlite3_bind_parameter_index(res, "@id");
 
 		sqlite3_bind_int(res, id_idx, id);
@@ -89,6 +116,36 @@ int increment_chest_value(sqlite3 *database, int id, int increment_amount) {
 		int bal = sqlite3_column_int(res, 0);
 		bal += increment_amount;
 		update_chest_balance(database, id, bal);
+	}
+
+	sqlite3_finalize(res);
+
+	if (decrement_uncategorized_balance(database, decrement_amount) != 0) {
+		fprintf(stderr, "Failed to decrement uncategorized balance.\n");
+		return(-1);
+	}
+
+	return(0);
+}
+
+int decrement_uncategorized_balance(sqlite3 *database, int decrement_amount) {
+	sqlite3_stmt *res;
+	int rc;
+	char *sql_uncat = "SELECT chest_balance FROM vault WHERE id=2;";
+
+	if ((rc = sqlite3_prepare_v2(database, sql_uncat, -1, &res, 0)) != SQLITE_OK) {
+		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(database));
+		return(-1);
+	}
+
+	int s = sqlite3_step(res);
+	if (s == SQLITE_ROW) {
+		printf("\tDEBUG: decrementing uncategorized by %d\n", decrement_amount);
+		int bal = sqlite3_column_int(res, 0);
+		printf("\tDEBUG: Uncat balance: %d\n", bal);
+		bal -= decrement_amount;
+		printf("\tDEBUG: Uncat balance after decrement: %d\n", bal);
+		update_chest_balance(database, 2, bal);
 	}
 
 	sqlite3_finalize(res);
@@ -186,7 +243,7 @@ int calculate_grand_total(sqlite3 *database) {
 		}
 	}
 
-	printf("Grand total: %d\n", grand_total);
+	sqlite3_finalize(res);
 
 	return(grand_total);
 }

@@ -49,8 +49,7 @@ int main(void) {
 			   "2) Create a chest\n"\
 			   "3) Display Chest Total\n"\
 			   "4) Increment Chest\n"\
-			   "10) Set Grand Total\n"\
-			   "11) Increment Grand Total\n"\
+			   "10) Initialize Uncategorized\n"\
 			   "0 to Quit\n"\
 			   "\n");
 		int selection = get_number();
@@ -91,15 +90,9 @@ int main(void) {
 				free(test_title);
 				break;
 			case 10 :
-				printf("Enter a new balance for your Root Account: ");
+				printf("Enter a new balance for Uncategorized: ");
 				test_number = get_number();
-				update_chest_balance(db, 1, test_number);
-				putchar('\n');
-				break;
-			case 11 :
-				printf("Enter increment amount: ");
-				test_number = get_number();
-				increment_chest_value(db, 1, test_number);
+				initialize_uncategorized(db, test_number);
 				putchar('\n');
 				break;
 			default :
