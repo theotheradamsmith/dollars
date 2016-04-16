@@ -6,6 +6,8 @@
 #include "string_util.h"
 #include "database.h"
 
+char *categories[] = {"ROOT", "KITCHEN", "AUTOMOTIVE", "LAUNDRY"};
+
 int get_number(void) {
 	char input[9];
 	fgets(input, sizeof(input), stdin);
@@ -32,9 +34,10 @@ char *get_string(void) {
 }
 
 int test_interface_loop(sqlite3 *db) {
-	char *test_title;
-	int test_number, grand_total;
-	int test_chest_id;
+	char *test_title, *test_category;
+	int test_number, grand_total, test_chest_id;
+	int test_category_number = 0;
+	int num_cats = sizeof(categories)/sizeof(categories[0]);
 
 	while (1) {
 		printf("\n"\
@@ -44,6 +47,7 @@ int test_interface_loop(sqlite3 *db) {
 			   "3) Display Chest Total\n"\
 			   "4) Increment Chest\n"\
 			   "10) Initialize Uncategorized\n"\
+			   "11) Print Categories\n"\
 			   "0 to Quit\n"\
 			   "\n");
 		int selection = get_number();
@@ -59,7 +63,14 @@ int test_interface_loop(sqlite3 *db) {
 				test_title = get_string();
 				printf("Please enter a balance for your test table: ");
 				test_number = get_number();
-				create_new_chest(db, test_title, test_number, KITCHEN);
+				printf("Please enter a category for your test table: ");
+				test_category = get_string();
+				for (int i = 0; i < num_cats; i++) {
+					if (!strcmp(test_category, categories[i])) {
+						test_category_number = i;
+					}
+				}
+				create_new_chest(db, test_title, test_number, test_category_number);
 				putchar('\n');
 				free(test_title);
 				break;
@@ -88,6 +99,11 @@ int test_interface_loop(sqlite3 *db) {
 				test_number = get_number();
 				initialize_uncategorized(db, test_number);
 				putchar('\n');
+				break;
+			case 11 :
+				for (int i = 0; i < num_cats; i++) {
+					printf("Category: %s\n", categories[i]);
+				}
 				break;
 			default :
 				goto terminate;
