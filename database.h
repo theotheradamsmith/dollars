@@ -56,9 +56,31 @@ int read_chest_balance(sqlite3 *database, int id);
  */
 int get_chest_id(sqlite3 *database, char *name);
 
+/**
+ * Calculates the total balance of all accounts by summing individual chest balances
+ * and adding these to the uncategorized balance.
+ * @param database The database the program has connected to
+ * @return Returns the grand total as an integer value
+ */
 int calculate_grand_total(sqlite3 *database);
 
+/**
+ * Sets the uncategorized balance to a user-specified value.
+ * Should only be run once.
+ * @param database The database the program has connected to
+ * @param balance The integer value to set the balance to
+ * @return Returns 0 on success, -1 on failure
+ */
 int initialize_uncategorized(sqlite3 *database, int balance);
 
+/**
+ * Alters the uncategorized balance by the value specified by decrement_amount. Should
+ * be called by functions that add/remove funds from the uncategorized chest so that
+ * grand total remains static.
+ * @param database The database the program has connected to
+ * @param decrement_amount The amount to subtract from the current uncategorized balance
+ * @return Returns 0 on success, -1 failure
+ */
 int decrement_uncategorized_balance(sqlite3 *database, int decrement_amount);
+
 #endif /* DATABASE_H */

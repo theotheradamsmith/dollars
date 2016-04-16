@@ -140,11 +140,18 @@ int decrement_uncategorized_balance(sqlite3 *database, int decrement_amount) {
 		return(-1);
 	}
 
-	int s = sqlite3_step(res);
-	if (s == SQLITE_ROW) {
-		int bal = sqlite3_column_int(res, 0);
-		bal -= decrement_amount;
-		update_chest_balance(database, 2, bal);
+	while (1) {
+		int s = sqlite3_step(res);
+		if (s == SQLITE_ROW) {
+			int bal = sqlite3_column_int(res, 0);
+			bal -= decrement_amount;
+			update_chest_balance(database, 2, bal);
+		} else if (s == SQLITE_DONE) {
+			break;
+		} else {
+			fprintf(stderr, "Failed to read row.\n");
+			return(-1);
+		}
 	}
 
 	sqlite3_finalize(res);
