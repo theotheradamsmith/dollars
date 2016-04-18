@@ -170,6 +170,7 @@ int read_chest_balance(sqlite3 *database, int id) {
 		sqlite3_bind_int(res, id_idx, id);
 	} else {
 		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(database));
+		sqlite3_close(database);
 		exit(1);
 	}
 
@@ -182,6 +183,7 @@ int read_chest_balance(sqlite3 *database, int id) {
 			break;
 		} else {
 			fprintf(stderr, "Failed to read row.\n");
+			sqlite3_close(database);
 			exit(1);
 		}
 	}
@@ -245,6 +247,7 @@ int calculate_grand_total(sqlite3 *database) {
 			break;
 		} else {
 			fprintf(stderr, "Failed to read row.\n");
+			sqlite3_close(database);
 			exit(1);
 		}
 	}
