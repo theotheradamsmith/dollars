@@ -195,7 +195,8 @@ int read_chest_balance(sqlite3 *database, int id) {
 
 int get_chest_id(sqlite3 *database, char *name) {
 	sqlite3_stmt *res;
-	int rc, id;
+	int rc;
+	int id = -1;
 	const char *string_id;
 	char *sql = "SELECT id FROM vault WHERE chest_name=@chest_name;";
 
@@ -223,6 +224,9 @@ int get_chest_id(sqlite3 *database, char *name) {
 
 	sqlite3_finalize(res);
 
+	if (id < 0)
+		fprintf(stderr, "Unable to find a chest with that name.\n");
+
 	return(id);
 }
 
@@ -234,7 +238,8 @@ int calculate_grand_total(sqlite3 *database) {
 
 	if ((rc = sqlite3_prepare_v2(database, sql, -1, &res, 0)) != SQLITE_OK) {
 		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(database));
-		return(-1);
+		sqlite3_close(database);
+		exit(1);
 	}
 
 	while (1) {
@@ -254,5 +259,48 @@ int calculate_grand_total(sqlite3 *database) {
 
 	sqlite3_finalize(res);
 
+	update_chest_balance(database, 1, grand_total);
+
 	return(grand_total);
+}
+
+int print_chest(sqlite3 *database, char *chest_name) {
+	sqlite3_stmt *res;
+	int rc, chest_id;
+
+	// I guess I don't need to do this... actually I probably should so that
+	// I can verify that there is a chest with this name...
+	if ((chest_id = get_chest_id(database, chest_name)) == -1) {
+		fprintf(stderr, "Failed to locate chest\n");
+		return(-1);
+	}
+
+	char *sql = "SELECT chest_balance, family_id FROM vault WHERE id=@chest_id;";
+
+	if ((rc = sqlite3_prepare_v2(database, sql, -1, &res, 0)) == SQLITE_OK) {
+		int id_idx = sqlite3_bind_parameter_index(res, "@chest_id");
+		sqlite3_bind_int(res, id_idx, chest_id);
+	} else {
+		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(database));
+		return(-1);
+	}
+	
+	while (1) {
+		int s = sqlite3_step(res);
+		if (s == SQLITE_ROW) {
+			int row_balance = sqlite3_column_int(res, 0);
+			int row_family = sqlite3_column_int(res, 1);
+			printf("Chest_name: %s -- Row_balance: %d Row_family: %d", chest_name, row_balance, row_family);
+		} else if (s == SQLITE_DONE) {
+			break;
+		} else {
+			fprintf(stderr, "Failed to read row.\n");
+			sqlite3_close(database);
+			exit(1);
+		}
+	}
+	
+	sqlite3_finalize(res);
+
+	return(0);
 }

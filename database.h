@@ -83,4 +83,12 @@ int initialize_uncategorized(sqlite3 *database, int balance);
  */
 int decrement_uncategorized_balance(sqlite3 *database, int decrement_amount);
 
+/**
+ * Prints the Name, Balance, and Family Category of a specified chest.
+ * @param database The database the program has connected to
+ * @param chest_name The name of the chest to print
+ * @return Returns 0 on success, -1 on failure
+ */
+int print_chest(sqlite3 *database, char *chest_name);
+
 #endif /* DATABASE_H */

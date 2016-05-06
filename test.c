@@ -48,6 +48,8 @@ int test_interface_loop(sqlite3 *db) {
 			   "4) Increment Chest\n"\
 			   "10) Initialize Uncategorized\n"\
 			   "11) Print Categories\n"\
+			   "12) Print Chest\n"\
+			   "13) Print Vault\n"\
 			   "0 to Quit\n"\
 			   "\n");
 		int selection = get_number();
@@ -77,7 +79,10 @@ int test_interface_loop(sqlite3 *db) {
 			case 3 :
 				printf("Enter name of chest to read: ");
 				test_title = get_string();
-				test_chest_id = get_chest_id(db, test_title);
+				if ((test_chest_id = get_chest_id(db, test_title)) == -1) {
+					printf("Failed to find chest.\n");
+					break;
+				}
 				int new_test_balance = read_chest_balance(db, test_chest_id);
 				printf("New balance for %s: %d", test_title, new_test_balance);
 				putchar('\n');
@@ -104,6 +109,16 @@ int test_interface_loop(sqlite3 *db) {
 				for (int i = 0; i < num_cats; i++) {
 					printf("Category: %s\n", categories[i]);
 				}
+				break;
+			case 12 :
+				// print chest
+				printf("Enter name of chest to print: ");
+				test_title = get_string();
+				print_chest(db, test_title);
+				putchar('\n');
+				break;
+			case 13 :
+				// print vault
 				break;
 			default :
 				goto terminate;
