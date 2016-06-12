@@ -119,6 +119,7 @@ int test_interface_loop(sqlite3 *db) {
 				break;
 			case 13 :
 				// print vault
+				print_table(db);
 				break;
 			default :
 				goto terminate;

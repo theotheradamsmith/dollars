@@ -304,3 +304,24 @@ int print_chest(sqlite3 *database, char *chest_name) {
 
 	return(0);
 }
+
+int print_cb(void *p, int argc, char **argv, char **column) {
+	int i;
+	for (i = 0; i < argc; i++) {
+		printf("%s\t", argv[i]);
+	}
+	printf("\n");
+	return(0);
+}
+
+int print_table(sqlite3 *db) {
+	int rc;
+
+	char *sql = "SELECT * FROM vault;";
+
+	if (sqlite3_exec(db, sql, print_cb, NULL, &main_database_err_msg)) {
+		fprintf(stderr, "Failed to execute: %s\n", sqlite3_errmsg(db));
+		return(-1);
+	}
+	return(0);
+}

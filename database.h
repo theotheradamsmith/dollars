@@ -91,4 +91,6 @@ int decrement_uncategorized_balance(sqlite3 *database, int decrement_amount);
  */
 int print_chest(sqlite3 *database, char *chest_name);
 
+int print_table(sqlite3 *db);
+
 #endif /* DATABASE_H */
