@@ -161,7 +161,7 @@ int decrement_uncategorized_balance(sqlite3 *database, int decrement_amount) {
 
 int read_chest_balance(sqlite3 *database, int id) {
 	sqlite3_stmt *res;
-	int rc, chest_balance;
+	int rc, chest_balance = 0;
 	const char *string_chest_balance;
 	char *sql = "SELECT chest_balance FROM vault WHERE id=@id;";
 
@@ -315,8 +315,6 @@ int print_cb(void *p, int argc, char **argv, char **column) {
 }
 
 int print_table(sqlite3 *db) {
-	int rc;
-
 	char *sql = "SELECT * FROM vault;";
 
 	if (sqlite3_exec(db, sql, print_cb, NULL, &main_database_err_msg)) {
